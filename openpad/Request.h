@@ -4,11 +4,10 @@
 #include <stdio.h>
 #include <string>
 #include "openpad.h"
-#include "writer.h"
-#include "document.h"
+#include "json/json.h"
 #include <vector>
 
-using namespace rapidjson;
+using namespace Json;
 using namespace std;
 
 namespace openpad {
@@ -18,7 +17,7 @@ namespace openpad {
     class Serializable {
         
     public:
-        virtual Value& serializeJSON(Document::AllocatorType& a)=0;
+        virtual Value& serializeJSON()=0;
         const char* getJSONString();
         
         Value JSONvalue;
@@ -30,12 +29,11 @@ namespace openpad {
     public:
         int operation;
         int timestamp;
-        Document *root;
         
         Request();
         Request(int op);
         bool parseJSON(const char* json);
-        Value& serializeJSON(Document::AllocatorType& a);
+        Value& serializeJSON();
     private:
     };
     
@@ -44,19 +42,18 @@ namespace openpad {
     public:
         int statusCode;
         string statusMsg;
-        Document* root;
         
         Response();
         Response(int code, const char* text);
         bool parseJSON(const char* json);
-        Value& serializeJSON(Document::AllocatorType& a);
+        Value& serializeJSON();
     private:
     };
     
     class IDObject : public Serializable{
     public:
         IDObject();
-        Value& serializeJSON(Document::AllocatorType& a);
+        Value& serializeJSON();
         bool parseJSON(Value& v);
         
         string phoneid;
@@ -69,7 +66,7 @@ namespace openpad {
     class GameObject : public Serializable{
     public:
         GameObject();
-        Value& serializeJSON(Document::AllocatorType& a);
+        Value& serializeJSON();
         bool parseJSON(Value& v);
         
         string name;
@@ -79,7 +76,7 @@ namespace openpad {
     
     class FrameObject : public Serializable{
     public:
-        Value& serializeJSON(Document::AllocatorType& a);
+        Value& serializeJSON();
         bool parseJSON(Value& v);
         void set(float x, float y, float w, float h);
         
@@ -88,7 +85,7 @@ namespace openpad {
     
     class ControlObject : public Serializable{
     public:
-        virtual Value& serializeJSON(Document::AllocatorType& a);
+        virtual Value& serializeJSON();
         virtual bool parseJSON(Value& v);
         
         int type;
@@ -103,7 +100,7 @@ namespace openpad {
         PadConfig(const PadConfig& other);
         PadConfig& operator=(const PadConfig& other);
         
-        Value& serializeJSON(Document::AllocatorType& a);
+        Value& serializeJSON();
         bool parseJSON(Value& v);
         void addControl(ControlObject* c);
         
@@ -123,7 +120,7 @@ namespace openpad {
     class ButtonControl : public ControlObject{
     public:
         ButtonControl(float x, float y, float w, int controlid, int btntype);
-        virtual Value& serializeJSON(Document::AllocatorType& a);
+        virtual Value& serializeJSON();
         
         int btntype;
     };

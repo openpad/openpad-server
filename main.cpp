@@ -17,7 +17,6 @@
 #include "Simulator.h"
 #include "DebugGame.h"
 
-using namespace rapidjson;
 
 void doServer(){
     
@@ -30,7 +29,7 @@ void doServer(){
 int main(){
 //    thread t(doServer);
 //    t.detach();
-//    simulate();
-    doServer();
+    simulate();
+//    doServer();
     return 0;
 }

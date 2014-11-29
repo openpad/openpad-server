@@ -8,15 +8,13 @@
 
 #include "Simulator.h"
 #include "openpad/openpad.h"
-#include "rapidjson.h"
-#include "document.h"
-#include "writer.h"
 
 #include <unistd.h>
 #include <thread>
 #include <iostream>
 
 using namespace openpad;
+using namespace Json;
 
 TCPSocket *sock;
 char buf[1024];
@@ -30,11 +28,10 @@ void sendBadRequest(){
 
 void sendDiscovReq(IDObject& id){
     Request r(0);
-    Document d;
-    Value& obj = r.serializeJSON(d.GetAllocator());
-    Value& idval = id.serializeJSON(d.GetAllocator());
-    obj.AddMember("id", idval, d.GetAllocator());
-    obj.AddMember("APIVersion", 1, d.GetAllocator());
+    Value& obj = r.serializeJSON();
+    Value& idval = id.serializeJSON();
+    obj["id"] = idval;
+    obj["APIVersion"] = 1;
     
     sendMsg(sock, r);
 }

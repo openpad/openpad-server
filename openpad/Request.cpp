@@ -8,29 +8,22 @@
 
 #include "Request.h"
 
-using namespace rapidjson;
+using namespace Json;
 using namespace std;
 using namespace openpad;
 
 const char* openpad::getStringFromJSON(Value& v){
-    StringBuffer out;
-    Writer<StringBuffer> writer(out);
-    v.Accept(writer);
+    Json::FastWriter w;
+    string out = w.write(v);
     
-    return out.GetString();
+    return out.c_str();
 }
 
 const char* Serializable::getJSONString(){
-    StringBuffer out;
-    Writer<StringBuffer> writer(out);
-    if(!hasSerialized){
-        Document d;
-        this->serializeJSON(d.GetAllocator());
-        hasSerialized = true;
-    }
-    JSONvalue.Accept(writer);
+    Json::StyledWriter w;
+    string out = w.write(JSONvalue);
     
-    return out.GetString();
+    return out.c_str();
 }
 
 Request::Request(){
@@ -42,23 +35,23 @@ Request::Request(int op){
     this->operation = op;
 }
 
-Value& Request::serializeJSON(Document::AllocatorType& a){
+Value& Request::serializeJSON(){
     hasSerialized = true;
-    JSONvalue.SetObject();
-    JSONvalue.AddMember("op", operation, a);
-    JSONvalue.AddMember("ts", (int)time(0), a);
+    JSONvalue["op"] = operation;
+    JSONvalue["ts"] = (int)time(0);
+    
     return JSONvalue;
 }
 
 bool Request::parseJSON(const char *json){
-    root = new Document;
-    root->Parse(json);
-    if(root->HasParseError())return false;
-    if(!root->HasMember("op"))return false;
-    if(!root->HasMember("ts"))return false;
+    Reader r;
+    bool success = r.parse(json, JSONvalue);
+    if(!success)return false;
+    if(JSONvalue.get("op", "")=="")return false;
+    if (JSONvalue.get("ts", "")=="")return false;
     
-    operation = (*root)["op"].GetInt();
-    timestamp = (*root)["ts"].GetInt();
+    operation = JSONvalue["op"].asInt();
+    timestamp = JSONvalue["ts"].asInt();
     return true;
 }
 
@@ -71,82 +64,81 @@ Response::Response(int code, const char* text): statusMsg(text), statusCode(code
 }
 
 bool Response::parseJSON(const char *json){
-    root = new Document;
-    root->Parse(json);
-    if(root->HasParseError())return false;
-    if(!root->HasMember("sts"))return false;
-    Value& sts = (*root)["sts"];
-    if(!sts.IsObject())return false;
-    if(!sts.HasMember("code"))return false;
-    if(!sts.HasMember("text"))return false;
-    statusCode = sts["code"].GetInt();
-    statusMsg = sts["msg"].GetString();
+    Reader r;
+    bool success = r.parse(json, JSONvalue);
+    if(!success)return false;
+    
+    if(JSONvalue.get("sts", "")=="")return false;
+    Value& sts = JSONvalue["sts"];
+    
+    if(!sts.isMember("code"))return false;
+    if(!sts.isMember("msg"))return false;
+    statusCode = sts["code"].asInt();
+    statusMsg = sts["msg"].asString();
     return true;
 }
 
-Value& Response::serializeJSON(Document::AllocatorType &a){
+Value& Response::serializeJSON(){
     hasSerialized = true;
     Value sts;
-    JSONvalue.SetObject();
     
-    sts.SetObject();
-    sts.AddMember("code", statusCode, a);
-    sts.AddMember("msg", statusMsg, a);
+    sts["code"] = statusCode;
+    sts["msg"] = statusMsg;
     
-    JSONvalue.AddMember("sts", sts, a);
+    JSONvalue["sts"] = sts;
     return JSONvalue;
 }
 
 IDObject::IDObject(): phoneid(""), firstname(""), lastname(""), username(""),fbuid("") {}
 
-Value& IDObject::serializeJSON(Document::AllocatorType &a){
+Value& IDObject::serializeJSON(){
     hasSerialized = true;
-    JSONvalue.SetObject();
-    JSONvalue.AddMember("phoneID", phoneid, a);
-    JSONvalue.AddMember("firstname", firstname, a);
-    JSONvalue.AddMember("lastname", lastname, a);
-    JSONvalue.AddMember("username", username, a);
-    JSONvalue.AddMember("fbuid", fbuid, a);
+    
+    JSONvalue["phoneID"] = phoneid;
+    JSONvalue["firstname"] = firstname;
+    JSONvalue["lastname"] = lastname;
+    JSONvalue["username"] = username;
+    JSONvalue["fbuid"] = fbuid;
     
     return JSONvalue;
 }
 
 bool IDObject::parseJSON(Value& v){
-    if(!v.HasMember("phoneID")&&v["phoneID"].IsString())return false;
-    if(!v.HasMember("firstname")&&v["firstname"].IsString())return false;
-    if(!v.HasMember("lastname")&&v["lastname"].IsString())return false;
-    if(!v.HasMember("username")&&v["username"].IsString())return false;
-    if(!v.HasMember("fbuid")&&v["fbuid"].IsString())return false;
+    if(!v.isMember("phoneID"))return false;
+    if(!v.isMember("firstname"))return false;
+    if(!v.isMember("lastname"))return false;
+    if(!v.isMember("username"))return false;
+    if(!v.isMember("fbuid"))return false;
     
-    phoneid = v["phoneID"].GetString();
-    firstname = v["firstname"].GetString();
-    lastname = v["lastname"].GetString();
-    fbuid = v["fbuid"].GetString();
-    username = v["username"].GetString();
+    phoneid = v["phoneID"].asString();
+    firstname = v["firstname"].asString();
+    lastname = v["lastname"].asString();
+    fbuid = v["fbuid"].asString();
+    username = v["username"].asString();
     return true;
 }
 
 GameObject::GameObject():openslots(0),filledslots(0){}
 
-Value& GameObject::serializeJSON(Document::AllocatorType &a){
+Value& GameObject::serializeJSON(){
     hasSerialized = true;
-    JSONvalue.SetObject();
-    JSONvalue.AddMember("name", name, a);
-    JSONvalue.AddMember("openslots", openslots, a);
-    JSONvalue.AddMember("filledslots", filledslots, a);
-    JSONvalue.AddMember("icon", icon, a);
-    JSONvalue.AddMember("desc", desc, a);
+    
+    JSONvalue["name"] = name;
+    JSONvalue["openslots"] = openslots;
+    JSONvalue["filledslots"] = filledslots;
+    JSONvalue["icon"] = icon;
+    JSONvalue["desc"] = desc;
     
     return JSONvalue;
 }
 
 bool GameObject::parseJSON(Value &v){
     try {
-        name = v["name"].GetString();
-        openslots = v["openslots"].GetInt();
-        filledslots = v["filledslots"].GetInt();
-        icon = v["icon"].GetString();
-        desc = v["desc"].GetString();
+        name = v["name"].asString();
+        openslots = v["openslots"].asInt();
+        filledslots = v["filledslots"].asInt();
+        icon = v["icon"].asString();
+        desc = v["desc"].asString();
         
         return true;
     } catch (exception e) {
@@ -156,22 +148,22 @@ bool GameObject::parseJSON(Value &v){
 
 bool FrameObject::parseJSON(Value &v){
     try {
-        x = v["x"].GetDouble();
-        y = v["y"].GetDouble();
-        w = v["w"].GetDouble();
-        h = v["h"].GetDouble();
+        x = v["x"].asDouble();
+        y = v["y"].asDouble();
+        w = v["w"].asDouble();
+        h = v["h"].asDouble();
         return true;
     } catch (exception ex) {
         return false;
     }
 }
 
-Value& FrameObject::serializeJSON(Document::AllocatorType &a){
-    JSONvalue.SetObject();
-    JSONvalue.AddMember("x", x, a);
-    JSONvalue.AddMember("y", y, a);
-    JSONvalue.AddMember("w", w, a);
-    JSONvalue.AddMember("h", h, a);
+Value& FrameObject::serializeJSON(){
+    
+    JSONvalue["x"] = x;
+    JSONvalue["y"] = y;
+    JSONvalue["w"] = w;
+    JSONvalue["h"] = h;
     
     return JSONvalue;
 }
@@ -185,9 +177,9 @@ void FrameObject::set(float x, float y, float w, float h){
 
 bool ControlObject::parseJSON(Value &v){
     try {
-        type = v["type"].GetInt();
-        controlID = v["type"].GetInt();
-        img = v["img"].GetString();
+        type = v["type"].asInt();
+        controlID = v["type"].asInt();
+        img = v["img"].asString();
         if(!frame.parseJSON(v["frame"]))return false;
         return true;
     } catch (exception ex) {
@@ -195,15 +187,15 @@ bool ControlObject::parseJSON(Value &v){
     }
 }
 
-Value& ControlObject::serializeJSON(Document::AllocatorType &a){
-    JSONvalue.SetObject();
-    JSONvalue.AddMember("type", type, a);
+Value& ControlObject::serializeJSON(){
+
+    JSONvalue["type"] = type;
     
-    Value& fr = frame.serializeJSON(a);
-    JSONvalue.AddMember("frame", fr, a);
-    JSONvalue.AddMember("id", controlID, a);
+    Value& fr = frame.serializeJSON();
+    JSONvalue["frame"] = fr;
+    JSONvalue["id"] = controlID;
     if(img.length()>0){
-        JSONvalue.AddMember("img", img, a);
+        JSONvalue["img"] = img;
     }
     
     return JSONvalue;
@@ -223,16 +215,15 @@ PadConfig& PadConfig::operator=(const openpad::PadConfig &other){
     return *this;
 }
 
-Value& PadConfig::serializeJSON(Document::AllocatorType &a){
-    JSONvalue.SetObject();
-    JSONvalue.AddMember("bgimg", bgimg, a);
+Value& PadConfig::serializeJSON(){
+    
+    JSONvalue["bgimg"] = bgimg;
     
     Value ctrls;
-    ctrls.SetArray();
     for(int i=0; i<controls.size(); i++){
-        ctrls.PushBack(controls[i]->serializeJSON(a), a);
+        ctrls.append(controls[i]->serializeJSON());
     }
-    JSONvalue.AddMember("controls", ctrls, a);
+    JSONvalue["controls"] = ctrls;
     
     return JSONvalue;
 }
@@ -247,11 +238,11 @@ void PadConfig::addControl(openpad::ControlObject *c){
 
 bool PadUpdateObject::parseJSON(Value &v){
     try {
-        action = v["action"].GetInt();
-        controlid = v["controlid"].GetInt();
+        action = v["action"].asInt();
+        controlid = v["controlid"].asInt();
         Value& pos = v["position"];
-        x = pos["x"].GetDouble();
-        y = pos["y"].GetDouble();
+        x = pos["x"].asDouble();
+        y = pos["y"].asDouble();
         
         return true;
     } catch (exception ex) {
@@ -266,9 +257,9 @@ ButtonControl::ButtonControl(float x, float y, float w, int _controlid, int _btn
     btntype = _btntype;
 }
 
-Value& ButtonControl::serializeJSON(Document::AllocatorType &a){
-    ControlObject::serializeJSON(a);
-    JSONvalue.AddMember("btntype", btntype, a);
+Value& ButtonControl::serializeJSON(){
+    ControlObject::serializeJSON();
+    JSONvalue["btntype"] = btntype;
     
     return JSONvalue;
 }

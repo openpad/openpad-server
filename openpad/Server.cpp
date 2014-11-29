@@ -14,6 +14,7 @@
 #include <unistd.h>
 
 using namespace openpad;
+using namespace Json;
 
 void openpad::sendMsg(TCPSocket* sock, Serializable& r){
     const char* msg = r.getJSONString();
@@ -116,10 +117,9 @@ void Server::broadcast(Serializable &s, int except){
 
 void Server::refreshClients(){
     Request req(1);
-    Document d;
-    Value& obj = req.serializeJSON(d.GetAllocator());
+    Value& obj = req.serializeJSON();
     GameObject g = getGameObject();
-    obj.AddMember("game", g.serializeJSON(d.GetAllocator()), d.GetAllocator());
+    obj["game"] = g.serializeJSON();
     for(map<int, Client&>::iterator it = clients.begin(); it != clients.end(); ++it){
         sendMsg(it->second.sock, req);
     }
@@ -142,7 +142,7 @@ Response Server::handleRequest(Request &r, Client* cli){
     try {
         if(r.operation==0){
             //Discovery Request
-            Value& cid = (*r.root)["id"];
+            Value& cid = r.JSONvalue["id"];
             cli->clientID = shared_ptr<IDObject>(new IDObject);
             if(!(*cli->clientID).parseJSON(cid))return error("bad id json");
             
@@ -154,21 +154,19 @@ Response Server::handleRequest(Request &r, Client* cli){
             gobj.openslots = handler.getOpenSlots();
             gobj.icon = fileToBase64(handler.getIconFilePath());
             
-            Document d;
-            Value& obj = resp.serializeJSON(d.GetAllocator());
-            Value& game = gobj.serializeJSON(d.GetAllocator());
-            obj.AddMember("game", game, d.GetAllocator());
+            Value& obj = resp.serializeJSON();
+            Value& game = gobj.serializeJSON();
+            obj["game"] = game;
             
             Value banned;
-            banned.SetObject();
             string why;
             bool is = !handler.canJoin(cli);
             if(is){
                 why = handler.whyIsBanned(cli);
             }
-            banned.AddMember("is", is, d.GetAllocator());
-            banned.AddMember("why", why, d.GetAllocator());
-            obj.AddMember("banned", banned, d.GetAllocator());
+            banned["is"] = is;
+            banned["why"] = why;
+            obj["banned"] = banned;
             
             return resp;
         }else if(r.operation==2){
@@ -176,13 +174,12 @@ Response Server::handleRequest(Request &r, Client* cli){
             bool canJoin = cli->clientID!=nullptr && !cli->hasJoined && handler.getOpenSlots()>0 && handler.canJoin(cli);
             
             Response resp(200,"OK");
-            Document d;
-            Value& obj = resp.serializeJSON(d.GetAllocator());
-            obj.AddMember("accepted", canJoin, d.GetAllocator());
+            Value& obj = resp.serializeJSON();
+            obj["accepted"] = canJoin;
             if(canJoin){
                 handler.onJoin(cli);
                 cli->hasJoined = true;
-                obj.AddMember("padconfig", handler.getDefaultControls().serializeJSON(d.GetAllocator()), d.GetAllocator());
+                obj["padconfig"] = handler.getDefaultControls().serializeJSON();
             }
             
             return resp;
@@ -193,9 +190,8 @@ Response Server::handleRequest(Request &r, Client* cli){
                 handler.onDisconnect(cli);
                 cli->hasJoined = false;
             }else{
-                Document d;
-                Value& obj = resp.serializeJSON(d.GetAllocator());
-                obj.AddMember("msg", string("not in game"), d.GetAllocator());
+                Value& obj = resp.serializeJSON();
+                obj["msg"] = "not in game";
             }
             
             return resp;
@@ -204,15 +200,14 @@ Response Server::handleRequest(Request &r, Client* cli){
             Response resp(200,"OK");
             if(cli->hasJoined){
                 PadUpdateObject update;
-                if(update.parseJSON(*r.root)){
+                if(update.parseJSON(r.JSONvalue)){
                     handler.onPadUpdate(cli, update);
                 }else{
                     resp.statusMsg = "Bad padupdate JSON";
                 }
             }else{
-                Document d;
-                Value& obj = resp.serializeJSON(d.GetAllocator());
-                obj.AddMember("msg", string("not in game"), d.GetAllocator());
+                Value& obj = resp.serializeJSON();
+                obj["msg"] = "not in game";
             }
             return resp;
         }
@@ -298,17 +293,15 @@ IDObject& Client::getID(){
 
 void Client::setControls(ControlObject& ctrls){
     Request r(4);
-    Document d;
-    Value& obj = r.serializeJSON(d.GetAllocator());
-    obj.AddMember("padconfig", ctrls.serializeJSON(d.GetAllocator()), d.GetAllocator());
+    Value& obj = r.serializeJSON();
+    obj["padconfig"] = ctrls.serializeJSON();
     send(r);
 }
 
 void Client::disconnect(string msg){
     Request r(3);
-    Document d;
-    Value& obj = r.serializeJSON(d.GetAllocator());
-    obj.AddMember("msg", msg, d.GetAllocator());
+    Value& obj = r.serializeJSON();
+    obj["msg"] = msg;
     send(r);
     hasJoined = false;
     shouldRun = false;
