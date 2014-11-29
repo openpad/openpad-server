@@ -19,11 +19,11 @@ const char* openpad::getStringFromJSON(Value& v){
     return out.c_str();
 }
 
-const char* Serializable::getJSONString(){
-    Json::StyledWriter w;
+string Serializable::getJSONString(){
+    Json::FastWriter w;
     string out = w.write(JSONvalue);
     
-    return out.c_str();
+    return out;
 }
 
 Request::Request(){

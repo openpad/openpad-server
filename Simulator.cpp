@@ -73,6 +73,22 @@ void getResponses(){
 }
 
 void simulate(){
+//    TCPServerSocket* serv = new TCPServerSocket("localhost", 9999);
+//    while (true) {
+//        TCPSocket *cli = serv->accept();
+//        for (int i=0; i<10; i++) {
+//            Request r(0);
+//            IDObject id1;
+//            id1.firstname = "James";
+//            id1.lastname = "Lennon";
+//            id1.username = "j_lennon";
+//            id1.phoneid = "a";
+//            cout << r.serializeJSON() << endl;
+//            sendMsg(cli, r);
+//        }
+//    }
+//    
+//    return;
     sleep(3);
     unsigned short currentPort = START_PORT;
     while (true) {
@@ -93,8 +109,8 @@ void simulate(){
     id1.username = "j_lennon";
     id1.phoneid = "a";
     sendDiscovReq(id1);
-//    sendJoinReq();
-//    sendDisconnectReq();
+    sendJoinReq();
+    sendDisconnectReq();
     
     sleep(2);
 }

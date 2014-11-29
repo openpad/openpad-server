@@ -18,7 +18,7 @@ namespace openpad {
         
     public:
         virtual Value& serializeJSON()=0;
-        const char* getJSONString();
+        string getJSONString();
         
         Value JSONvalue;
         bool hasSerialized=false;

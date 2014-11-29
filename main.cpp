@@ -27,8 +27,8 @@ void doServer(){
 }
 
 int main(){
-//    thread t(doServer);
-//    t.detach();
+    thread t(doServer);
+    t.detach();
     simulate();
 //    doServer();
     return 0;
