@@ -83,7 +83,9 @@ void simulate(){
 //            id1.lastname = "Lennon";
 //            id1.username = "j_lennon";
 //            id1.phoneid = "a";
-//            cout << r.serializeJSON() << endl;
+//            Json::Value& obj = r.serializeJSON();
+//            obj["id"] = id1.serializeJSON();
+//            
 //            sendMsg(cli, r);
 //        }
 //    }
@@ -111,6 +113,7 @@ void simulate(){
     sendDiscovReq(id1);
     sendJoinReq();
     sendDisconnectReq();
+    getResponses();
     
     sleep(2);
 }

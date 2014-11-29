@@ -18,10 +18,9 @@ using namespace Json;
 
 void openpad::sendMsg(TCPSocket* sock, Serializable& r){
     if(!r.hasSerialized)r.serializeJSON();
-    const char* msg = r.getJSONString().c_str();
-    int len = (int)strlen(msg);
-    sock->send(msg, len+1);
-    if(OP_DEBUG)printf("sent: %s\n", msg);
+    string s = r.getJSONString();
+    sock->send(s.c_str(), s.length()+1);
+    if(OP_DEBUG)printf("sent: %s\n", s.c_str());
 }
 
 Server::Server(ServerHandler& h): handler(h){
