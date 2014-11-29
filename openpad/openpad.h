@@ -28,8 +28,8 @@
 #define BUTTON_X 2
 #define BUTTON_Y 3
 
+#define ACTION_UP 0
 #define ACTION_DOWN 1
 #define ACTION_MOVE 2
-#define ACTION_UP 0
 
 #endif

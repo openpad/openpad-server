@@ -7,7 +7,7 @@
 //
 
 #include "Simulator.h"
-#include "openpad.h"
+#include "openpad/openpad.h"
 #include "rapidjson.h"
 #include "document.h"
 #include "writer.h"

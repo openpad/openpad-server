@@ -8,7 +8,7 @@
 
 #include <stdio.h>
 #include <iostream>
-#include "openpad.h"
+#include "openpad/openpad.h"
 #include <cstdio>
 #include <sstream>
 #include <thread>
