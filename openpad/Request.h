@@ -106,6 +106,8 @@ namespace openpad {
         
         vector<ControlObject*> controls;
         string bgimg;
+        
+        static PadConfig joystickWithButtonsLayout();
     private:
     };
     

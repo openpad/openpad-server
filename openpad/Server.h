@@ -59,6 +59,7 @@ namespace openpad {
         
         Server(ServerHandler& handler);
         void start();
+        void stop();
         void refreshClients();
         void setControls(ControlObject& ctrls);
         

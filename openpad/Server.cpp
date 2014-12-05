@@ -17,16 +17,18 @@ using namespace openpad;
 using namespace Json;
 
 void openpad::sendMsg(TCPSocket* sock, Serializable& r){
-    if(!r.hasSerialized)r.serializeJSON();
-    string s = r.getJSONString();
-    sock->send(s.c_str(), s.length()+1);
-    if(OP_DEBUG)printf("sent: %s\n", s.c_str());
+    try{
+        if(!r.hasSerialized)r.serializeJSON();
+        string s = r.getJSONString();
+        sock->send(s.c_str(), s.length()+1);
+        if(OP_DEBUG)printf("sent: %s\n", s.c_str());
+    }catch(exception ex){
+        printf("Error sending message: %d\n", ex.what());
+    }
 }
 
 Server::Server(ServerHandler& h): handler(h){
     this->handler = h;
-    currentClientID = 0;
-    this->shouldRun = true;
     handler.serv = this;
 }
 
@@ -37,14 +39,18 @@ void Server::advertiseLocation(unsigned short port){
     msg[1] = port % 256;
     string from;
     unsigned short fromPort;
-    while (true) {
+    while (shouldRun) {
         uSock.recvFrom(buf, 10, from, fromPort);
         if (OP_DEBUG)printf("packet from %s\n", from.c_str());
         uSock.sendTo(msg, 2, from, fromPort);
     }
+    uSock.disconnect();
 }
 
 void Server::start(){
+    
+    currentClientID = 0;
+    this->shouldRun = true;
     
     TCPServerSocket* serverSock = nullptr;
     unsigned short currentPort = START_PORT;
@@ -66,6 +72,17 @@ void Server::start(){
     
     handler.onStart();
     listenForSockets(serverSock);
+}
+
+void Server::stop(){
+    Request disconnectReq(3);
+    Value& obj = disconnectReq.serializeJSON();
+    obj["msg"] = "Server disconnected";
+    broadcast(disconnectReq);
+    for (map<int, Client&>::iterator it = clients.begin(); it!=clients.end(); ++it) {
+        it->second.shouldRun = false;
+    }
+    shouldRun = false;
 }
 
 void Server::listenForSockets(TCPServerSocket *serverSock){

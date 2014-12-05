@@ -74,7 +74,7 @@ PadConfig DebugGame::getDefaultControls(){
     conf.addControl(dpad);
     conf.addControl(stick);
     
-    return conf;
+    return PadConfig::joystickWithButtonsLayout();
 }
 
 void DebugGame::onDisconnect(Client *cli){

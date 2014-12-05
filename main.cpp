@@ -17,19 +17,22 @@
 #include "Simulator.h"
 #include "DebugGame.h"
 
+openpad::Server *serv;
 
 void doServer(){
     
     DebugGame game(4);
+    serv = new openpad::Server(game);
     
-    openpad::Server serv(game);
-    serv.start();
+    serv->start();
 }
 
 int main(){
-//    thread t(doServer);
-//    t.detach();
+    thread t(doServer);
+    t.detach();
+    sleep(15);
+    serv->stop();
 //    simulate();
-    doServer();
+//    doServer();
     return 0;
 }

@@ -236,6 +236,18 @@ void PadConfig::addControl(openpad::ControlObject *c){
     controls.push_back(c);
 }
 
+PadConfig PadConfig::joystickWithButtonsLayout(){
+    PadConfig conf;
+    
+    JoystickControl *stick = new JoystickControl(.22,.5,.45,0);
+    conf.addControl(stick);
+    ButtonControl *abtn = new ButtonControl(.7,.6,.2,1,BUTTON_A), *bbtn = new ButtonControl(.8,0.4,.2,2,BUTTON_B);
+    conf.addControl(abtn);
+    conf.addControl(bbtn);
+    
+    return conf;
+}
+
 bool PadUpdateObject::parseJSON(Value &v){
     try {
         action = v["action"].asInt();
