@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <string>
 #include "openpad.h"
-#include "json/json.h"
+#include "json.h"
 #include <vector>
 
 using namespace Json;
