@@ -48,9 +48,9 @@
 %ignore openpad::Server::handleRequest(Request &r, Client *cli);
 %ignore openpad::Serializable::JSONvalue;
 
-%include "../PlayPhone/openpad.h"
-%include "../PlayPhone/Server.h"
-%include "../PlayPhone/Request.h"
+%include "../openpad/openpad.h"
+%include "../openpad/Server.h"
+%include "../openpad/Request.h"
 
 %feature("director") openpad::ServerHandler;
-%include "../PlayPhone/ServerHandler.h"
+%include "../openpad/ServerHandler.h"

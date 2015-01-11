@@ -239,7 +239,7 @@ void PadConfig::addControl(openpad::ControlObject *c){
 PadConfig PadConfig::joystickWithButtonsLayout(){
     PadConfig conf;
     
-    JoystickControl *stick = new JoystickControl(.22,.5,.45,0);
+    JoystickControl *stick = new JoystickControl(.22,.5,.6,0);
     conf.addControl(stick);
     ButtonControl *abtn = new ButtonControl(.65,.6,.26,1,BUTTON_A), *bbtn = new ButtonControl(.8,0.4,.26,2,BUTTON_B);
     conf.addControl(abtn);

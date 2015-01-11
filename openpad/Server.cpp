@@ -20,7 +20,11 @@ void openpad::sendMsg(TCPSocket* sock, Serializable& r){
     try{
         if(!r.hasSerialized)r.serializeJSON();
         string s = r.getJSONString();
-        sock->send(s.c_str(), s.length()+1);
+        try {
+            sock->send(s.c_str(), s.length()+1);
+        } catch (exception ex) {
+            printf("%s\n", ex.what());
+        }
         if(OP_DEBUG)printf("sent: %s\n", s.c_str());
     }catch(exception ex){
         printf("Error sending message: %d\n", ex.what());
