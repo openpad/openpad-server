@@ -27,7 +27,7 @@ void openpad::sendMsg(TCPSocket* sock, Serializable& r){
         }
         if(OP_DEBUG)printf("sent: %s\n", s.c_str());
     }catch(exception ex){
-        printf("Error sending message: %d\n", ex.what());
+        printf("Error sending message: %s\n", ex.what());
     }
 }
 

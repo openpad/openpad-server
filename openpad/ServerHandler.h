@@ -35,6 +35,7 @@ namespace openpad {
         virtual PadConfig getDefaultControls();
         virtual void onDisconnect(Client* cli);
         virtual void onPadUpdate(Client* cli, PadUpdateObject update);
+        virtual ~ServerHandler();
     private:
     };
     

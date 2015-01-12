@@ -1,9 +1,9 @@
 %module(directors="1") openpad
 %{
-#include "../PlayPhone/openpad.h"
+#include "../openpad/openpad.h"
 %}
 
-#include "../PlayPhone/openpad.h"
+#include “../openpad/openpad.h"
 %include "std_string.i"
 %include "std_vector.i"
 #include <string>

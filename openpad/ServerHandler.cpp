@@ -48,3 +48,4 @@ void ServerHandler::onDisconnect(Client *cli){}
 
 void ServerHandler::onPadUpdate(Client *cli, PadUpdateObject update){}
 
+ServerHandler::~ServerHandler(){};
