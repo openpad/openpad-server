@@ -1,9 +1,10 @@
 %module(directors="1") openpad
 %{
 #include "../openpad/openpad.h"
+#include "../json/json.h"
 %}
 
-#include “../openpad/openpad.h"
+#include "../openpad/openpad.h"
 %include "std_string.i"
 %include "std_vector.i"
 #include <string>
@@ -54,3 +55,14 @@
 
 %feature("director") openpad::ServerHandler;
 %include "../openpad/ServerHandler.h"
+
+%pragma(java) jniclasscode=%{
+    static {
+        try {
+            System.loadLibrary("openpad");
+        } catch (UnsatisfiedLinkError e) {
+            System.err.println("Native code library failed to load. \n" + e);
+            System.exit(1);
+        }
+    }
+%}

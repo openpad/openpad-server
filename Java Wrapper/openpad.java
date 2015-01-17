@@ -8,5 +8,13 @@
 
 package com.openpad.server;
 
-public class openpad {
+public class openpad implements openpadConstants {
+  public static void sendMsg(SWIGTYPE_p_TCPSocket sock, Serializable r) {
+    openpadJNI.sendMsg(SWIGTYPE_p_TCPSocket.getCPtr(sock), Serializable.getCPtr(r), r);
+  }
+
+  public static String getStringFromJSON(SWIGTYPE_p_Value v) {
+    return openpadJNI.getStringFromJSON(SWIGTYPE_p_Value.getCPtr(v));
+  }
+
 }

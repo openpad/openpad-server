@@ -28,11 +28,11 @@ void doServer(){
 }
 
 int main(){
-//    thread t(doServer);
-//    t.detach();
-//    sleep(15);
-//    serv->stop();
+    thread t(doServer);
+    t.detach();
+    sleep(15);
+    serv->stop();
 //    simulate();
-    doServer();
+//    doServer();
     return 0;
 }

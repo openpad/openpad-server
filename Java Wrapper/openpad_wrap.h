@@ -11,5 +11,31 @@
 #ifndef SWIG_openpad_WRAP_H_
 #define SWIG_openpad_WRAP_H_
 
+class SwigDirector_ServerHandler : public openpad::ServerHandler, public Swig::Director {
+
+public:
+    void swig_connect_director(JNIEnv *jenv, jobject jself, jclass jcls, bool swig_mem_own, bool weak_global);
+    SwigDirector_ServerHandler(JNIEnv *jenv);
+    virtual void onStart();
+    virtual bool canJoin(openpad::Client *cli);
+    virtual std::string whyIsBanned(openpad::Client *cli);
+    virtual std::string getName();
+    virtual std::string getDesc();
+    virtual std::string getIconFilePath();
+    virtual int getFilledSlots();
+    virtual int getOpenSlots();
+    virtual void onJoin(openpad::Client *cli);
+    virtual openpad::PadConfig getDefaultControls();
+    virtual void onDisconnect(openpad::Client *cli);
+    virtual void onPadUpdate(openpad::Client *cli, openpad::PadUpdateObject update);
+    virtual ~SwigDirector_ServerHandler();
+public:
+    bool swig_overrides(int n) {
+      return (n < 12 ? swig_override[n] : false);
+    }
+protected:
+    bool swig_override[12];
+};
+
 
 #endif

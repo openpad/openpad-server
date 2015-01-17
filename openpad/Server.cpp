@@ -209,7 +209,7 @@ Response Server::handleRequest(Request &r, Client* cli){
             Response resp(200,"OK");
             if(cli->hasJoined){
                 handler.onDisconnect(cli);
-                cli->hasJoined = false;
+                cli->shouldRun = false;
             }else{
                 Value& obj = resp.serializeJSON();
                 obj["msg"] = "not in game";
@@ -248,6 +248,13 @@ void Server::setControls(ControlObject &ctrls){
     for(map<int, Client&>::iterator it = clients.begin(); it != clients.end(); ++it){
         it->second.setControls(ctrls);
     }
+}
+
+void Server::removeClient(Client* cli){
+    cli->hasJoined = false;
+    mut.lock();
+    clients.erase(clients.find(cli->socketID));
+    mut.unlock();
 }
 
 Client::Client(TCPSocket* sock, int id, Server* serv){
@@ -303,7 +310,8 @@ void Client::run(){
         } while (bytesProcessed<amt);
     }
     serv->handler.onDisconnect(this);
-    serv->clients.erase(serv->clients.find(socketID));
+    serv->removeClient(this);
+//    serv->clients.erase(serv->clients.find(socketID));
     delete sock;
     sock=NULL;
 }

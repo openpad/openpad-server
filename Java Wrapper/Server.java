@@ -92,4 +92,8 @@ public class Server {
     openpadJNI.Server_handleResponse(swigCPtr, this, Response.getCPtr(r), r, Client.getCPtr(cli), cli);
   }
 
+  public void removeClient(Client cli) {
+    openpadJNI.Server_removeClient(swigCPtr, this, Client.getCPtr(cli), cli);
+  }
+
 }
