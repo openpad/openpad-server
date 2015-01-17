@@ -76,6 +76,7 @@ void Server::start(){
     
     handler.onStart();
     listenForSockets(serverSock);
+    t.join();
 }
 
 void Server::stop(){
@@ -209,7 +210,7 @@ Response Server::handleRequest(Request &r, Client* cli){
             Response resp(200,"OK");
             if(cli->hasJoined){
                 handler.onDisconnect(cli);
-                cli->shouldRun = false;
+                cli->hasJoined = false;
             }else{
                 Value& obj = resp.serializeJSON();
                 obj["msg"] = "not in game";
@@ -251,8 +252,11 @@ void Server::setControls(ControlObject &ctrls){
 }
 
 void Server::removeClient(Client* cli){
-    cli->hasJoined = false;
     mut.lock();
+    if(cli->hasJoined){
+        handler.onDisconnect(cli);
+        cli->hasJoined = false;
+    }
     clients.erase(clients.find(cli->socketID));
     mut.unlock();
 }
@@ -296,6 +300,7 @@ void Client::run(){
     
     while (shouldRun) {
         int amt = sock->recv(buf, BUFFER_LENGTH-1);
+        if(amt<=0)break;
         buf[amt] = 0;
         
         int bytesProcessed = 0;
@@ -309,9 +314,7 @@ void Client::run(){
             bytesProcessed+=len+1;
         } while (bytesProcessed<amt);
     }
-    serv->handler.onDisconnect(this);
     serv->removeClient(this);
-//    serv->clients.erase(serv->clients.find(socketID));
     delete sock;
     sock=NULL;
 }

@@ -25,6 +25,7 @@ void doServer(){
     serv = new openpad::Server(game);
     
     serv->start();
+    cout << "stopped" << endl;
 }
 
 int main(){
@@ -32,6 +33,7 @@ int main(){
     t.detach();
     sleep(15);
     serv->stop();
+    t.join();
 //    simulate();
 //    doServer();
     return 0;
