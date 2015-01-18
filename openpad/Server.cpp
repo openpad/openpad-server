@@ -202,6 +202,7 @@ Response Server::handleRequest(Request &r, Client* cli){
                 handler.onJoin(cli);
                 cli->hasJoined = true;
                 obj["padconfig"] = handler.getDefaultControls().serializeJSON();
+                refreshClients();
             }
             
             return resp;

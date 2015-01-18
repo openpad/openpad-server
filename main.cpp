@@ -20,7 +20,6 @@
 openpad::Server *serv;
 
 void doServer(){
-    
     DebugGame game(4);
     serv = new openpad::Server(game);
     
