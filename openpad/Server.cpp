@@ -37,26 +37,31 @@ Server::Server(ServerHandler& h): handler(h){
 }
 
 void Server::advertiseLocation(unsigned short port){
-    UDPSocket uSock(9999);
+    uSock = new UDPSocket(9999);
     char msg[2], buf[10];
     msg[0] = port / 256;
     msg[1] = port % 256;
     string from;
     unsigned short fromPort;
     while (shouldRun) {
-        uSock.recvFrom(buf, 10, from, fromPort);
-        if (OP_DEBUG)printf("packet from %s\n", from.c_str());
-        uSock.sendTo(msg, 2, from, fromPort);
+        try {
+            uSock->recvFrom(buf, 10, from, fromPort);
+            if (OP_DEBUG)printf("packet from %s\n", from.c_str());
+            uSock->sendTo(msg, 2, from, fromPort);
+        } catch (exception ex) {
+            if (OP_DEBUG) {
+                printf("TCP exception: %s\n", ex.what());
+            }
+            break;
+        }
     }
-    uSock.disconnect();
 }
 
 void Server::start(){
-    
     currentClientID = 0;
     this->shouldRun = true;
     
-    TCPServerSocket* serverSock = nullptr;
+    serverSock = nullptr;
     unsigned short currentPort = START_PORT;
     while(serverSock==nullptr){
         try {
@@ -71,12 +76,10 @@ void Server::start(){
     if(OP_DEBUG)printf("Successfully connected to port %d\n", currentPort);
     
     //Advertise IP Address
-    thread t(&Server::advertiseLocation, this, currentPort);
-    t.detach();
-    
+    advertiseThread = thread(&Server::advertiseLocation, this, currentPort);
     handler.onStart();
-    listenForSockets(serverSock);
-    t.join();
+    
+    listenThread = thread(&Server::listenForSockets, this, serverSock);
 }
 
 void Server::stop(){
@@ -88,17 +91,36 @@ void Server::stop(){
         it->second.shouldRun = false;
     }
     shouldRun = false;
+    delete serverSock;
+    serverSock = nullptr;
+    uSock->disconnect();
+    delete uSock;
+    uSock = nullptr;
+    
+    if(listenThread.joinable()){
+        if(OP_DEBUG)printf("joining Listen\n");
+        listenThread.join();
+    }
+    if(advertiseThread.joinable()){
+        if(OP_DEBUG)printf("joining Advertise\n");
+        advertiseThread.join();
+    }
 }
 
 void Server::listenForSockets(TCPServerSocket *serverSock){
     while (shouldRun) {
         //Accept new client, spawn thread to handle it
-        TCPSocket *sock = serverSock->accept();
-        thread t(&Server::handleClient, this, sock);
-        t.detach();
+        try {
+            TCPSocket *sock = serverSock->accept();
+            thread t(&Server::handleClient, this, sock);
+            t.detach();
+        } catch (exception ex) {
+            if (OP_DEBUG) {
+                printf("TCP exception: %s\n", ex.what());
+            }
+            break;
+        }
     }
-    delete serverSock;
-    serverSock = NULL;
 }
 
 int Server::getClientID(){

@@ -24,15 +24,24 @@ void doServer(){
     serv = new openpad::Server(game);
     
     serv->start();
-    cout << "stopped" << endl;
 }
 
 int main(){
-    thread t(doServer);
-    t.detach();
+//    thread t(doServer);
+//    t.detach();
+//    doServer();
+    
+    DebugGame game(4);
+    serv = new openpad::Server(game);
+    
+    serv->start();
+    sleep(5);
+    serv->stop();
+    sleep(2);
+    serv->start();
     sleep(15);
     serv->stop();
-    t.join();
+//    t.join();
 //    simulate();
 //    doServer();
     return 0;

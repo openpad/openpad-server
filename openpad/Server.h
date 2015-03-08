@@ -13,7 +13,7 @@
 #include "openpad.h"
 #include <mutex>
 #include <map>
-
+#include <thread>
 
 namespace openpad {
     
@@ -24,6 +24,7 @@ namespace openpad {
     class Response;
     class ServerHandler;
     class IDObject;
+    class PadConfig;
     class GameObject;
     class ControlObject;
     
@@ -47,6 +48,7 @@ namespace openpad {
         void disconnect(string msg);
     private:
         void handleMsg(string msg);
+        thread listenThread;
     };
     
     class Server {
@@ -69,7 +71,11 @@ namespace openpad {
     private:
         mutex mut;
         unsigned short port;
+        thread advertiseThread, listenThread;
+        TCPServerSocket* serverSock;
+        UDPSocket* uSock;
         
+        void run();
         void advertiseLocation(unsigned short port);
         bool send(Serializable& s, int clientID);
         void broadcast(Serializable &s, int except=-1);
