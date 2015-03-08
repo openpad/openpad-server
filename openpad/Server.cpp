@@ -79,6 +79,8 @@ void Server::start(){
     advertiseThread = thread(&Server::advertiseLocation, this, currentPort);
     handler.onStart();
     
+    defaultConfig = new PadConfig(handler.getDefaultControls());
+    
     listenThread = thread(&Server::listenForSockets, this, serverSock);
 }
 
@@ -223,7 +225,7 @@ Response Server::handleRequest(Request &r, Client* cli){
             if(canJoin){
                 handler.onJoin(cli);
                 cli->hasJoined = true;
-                obj["padconfig"] = handler.getDefaultControls().serializeJSON();
+                obj["padconfig"] = defaultConfig->serializeJSON();
                 refreshClients();
             }
             
@@ -272,6 +274,7 @@ void Server::setControls(PadConfig &ctrls){
     for(map<int, Client&>::iterator it = clients.begin(); it != clients.end(); ++it){
         it->second.setControls(ctrls);
     }
+    defaultConfig = new PadConfig(ctrls);
 }
 
 void Server::removeClient(Client* cli){

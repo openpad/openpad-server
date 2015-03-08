@@ -248,6 +248,21 @@ PadConfig PadConfig::joystickWithButtonsLayout(){
     return conf;
 }
 
+PadConfig PadConfig::twoJoystickTwoButtonsLayout(){
+    PadConfig conf;
+    
+    ButtonControl *abtn = new ButtonControl(.42f,.8f,.3f,2,BUTTON_A), *bbtn = new ButtonControl(.58f,.8f,.3f,3,BUTTON_B);
+    conf.addControl(abtn);
+    conf.addControl(bbtn);
+    
+    JoystickControl *stick1 = new JoystickControl(.25f, .5f, .6f, 0);
+    conf.addControl(stick1);
+    JoystickControl *stick2 = new JoystickControl(.75f, .5f, .6f, 1);
+    conf.addControl(stick2);
+    
+    return conf;
+}
+
 bool PadUpdateObject::parseJSON(Value &v){
     try {
         action = v["action"].asInt();

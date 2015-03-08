@@ -22,7 +22,6 @@ openpad::Server *serv;
 void doServer(){
     DebugGame game(4);
     serv = new openpad::Server(game);
-    
     serv->start();
 }
 
@@ -35,12 +34,16 @@ int main(){
     serv = new openpad::Server(game);
     
     serv->start();
-    sleep(5);
-    serv->stop();
-    sleep(2);
-    serv->start();
     sleep(15);
+    PadConfig conf = PadConfig::twoJoystickTwoButtonsLayout();
+    serv->setControls(conf);
+    sleep(20);
     serv->stop();
+    
+//    sleep(2);
+//    serv->start();
+//    sleep(15);
+//    serv->stop();
 //    t.join();
 //    simulate();
 //    doServer();

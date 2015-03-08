@@ -14,7 +14,7 @@
 #include "ServerHandler.h"
 #include "Util.h"
 
-#define OP_DEBUG 1
+#define OP_DEBUG 0
 #define BUFFER_LENGTH 1024
 #define START_PORT 47810
 

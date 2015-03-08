@@ -111,6 +111,7 @@ namespace openpad {
         string bgimg;
         
         static PadConfig joystickWithButtonsLayout();
+        static PadConfig twoJoystickTwoButtonsLayout();
     private:
     };
     

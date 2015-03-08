@@ -74,6 +74,7 @@ namespace openpad {
         thread advertiseThread, listenThread;
         TCPServerSocket* serverSock;
         UDPSocket* uSock;
+        PadConfig* defaultConfig;
         
         void run();
         void advertiseLocation(unsigned short port);
