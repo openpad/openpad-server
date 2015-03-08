@@ -246,7 +246,7 @@ void Server::handleResponse(Response &r, Client* cli){
     
 }
 
-void Server::setControls(ControlObject &ctrls){
+void Server::setControls(PadConfig &ctrls){
     for(map<int, Client&>::iterator it = clients.begin(); it != clients.end(); ++it){
         it->second.setControls(ctrls);
     }
@@ -324,7 +324,7 @@ IDObject& Client::getID(){
     return *clientID;
 }
 
-void Client::setControls(ControlObject& ctrls){
+void Client::setControls(PadConfig& ctrls){
     Request r(4);
     Value& obj = r.serializeJSON();
     obj["padconfig"] = ctrls.serializeJSON();

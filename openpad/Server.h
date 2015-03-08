@@ -43,7 +43,7 @@ namespace openpad {
         void send(Serializable &s);
         void run();
         IDObject& getID();
-        void setControls(ControlObject& ctrls);
+        void setControls(PadConfig& ctrls);
         void disconnect(string msg);
     private:
         void handleMsg(string msg);
@@ -61,7 +61,7 @@ namespace openpad {
         void start();
         void stop();
         void refreshClients();
-        void setControls(ControlObject& ctrls);
+        void setControls(PadConfig& ctrls);
         
         Response handleRequest(Request& r, Client* cli);
         void handleResponse(Response& r, Client* cli);
